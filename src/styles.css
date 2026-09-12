@@ -1,0 +1,226 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/big-shoulders-display';
+@import '@fontsource-variable/onest';
+
+/*
+  Plan treningowy — system wizualny.
+
+  Kolor mówi, który to trening: kobalt to zawsze A, pomarańcz piłki to zawsze B.
+  Złoto pojawia się wyłącznie przy rekordach, zieleń wyłącznie przy „zrobione".
+  Dzięki temu jeden rzut oka wystarcza, żeby wiedzieć, co jest grane.
+
+  Nazwy ćwiczeń i liczby idą krojem Big Shoulders — wąskim, sportowym,
+  rysowanym dla Chicago. Cała reszta to spokojny, czytelny Onest.
+*/
+
+@theme {
+  --color-night: #161a22;
+  --color-panel: #1e232d;
+  --color-raised: #272d39;
+  --color-edge: #323947;
+  --color-chalk: #f1f3f7;
+  --color-ash: #a3abbb;
+  --color-dim: #6c7487;
+
+  --color-a: #7391ff;
+  --color-b: #ff8b3d;
+  --color-gold: #f6c453;
+  --color-go: #4ad592;
+  --color-stop: #ff6161;
+
+  --font-sans: 'Onest Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Big Shoulders Display Variable', 'Arial Narrow', ui-sans-serif, sans-serif;
+
+  --radius-card: 18px;
+
+  --animate-rise: rise 0.32s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-fade: fade 0.2s ease-out both;
+  --animate-sheet: sheet 0.34s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-shake: shake 0.36s ease-in-out;
+  --animate-toast: toast 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-pop: pop 0.4s ease-out;
+}
+
+/* Kolor bieżącego treningu — ustawiany przez data-day na dowolnym kontenerze. */
+@theme inline {
+  --color-day: var(--day);
+  --color-day-ink: var(--day-ink);
+}
+
+:root {
+  color-scheme: dark;
+  --day: var(--color-a);
+  --day-ink: #0a1133;
+}
+
+[data-day='A'] {
+  --day: var(--color-a);
+  --day-ink: #0a1133;
+}
+
+[data-day='B'] {
+  --day: var(--color-b);
+  --day-ink: #2a1203;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    background: var(--color-night);
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-night);
+    color: var(--color-chalk);
+    font-family: var(--font-sans);
+    font-weight: 420;
+    overscroll-behavior-y: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button {
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  input,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--day);
+    outline-offset: 2px;
+  }
+
+  input:focus-visible,
+  textarea:focus-visible {
+    outline: none;
+  }
+
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+}
+
+@layer components {
+  /* Nazwy i nagłówki — wąsko, mocno, jak napis na koszulce. */
+  .display {
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    line-height: 0.95;
+  }
+
+  /* Liczby — zawsze równej szerokości, żeby zegar i ciężary nie skakały. */
+  .num {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums lining-nums;
+    line-height: 1;
+  }
+
+  .label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    line-height: 1.15;
+  }
+}
+
+@utility pt-safe {
+  padding-top: max(0.75rem, env(safe-area-inset-top));
+}
+
+@utility pb-safe {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sheet {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: none;
+  }
+  20% {
+    transform: translateX(-6px);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+}
+
+@keyframes toast {
+  from {
+    opacity: 0;
+    transform: translateY(-14px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.16);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
