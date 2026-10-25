@@ -1,9 +1,10 @@
-export type DayKey = 'A' | 'B';
+export type ScheduledDay = 'A' | 'B';
+export type DayKey = ScheduledDay | 'C';
 
 export type ExerciseKind = 'warmup' | 'weighted' | 'jump';
 
 /** Po co jest ćwiczenie — widać to na plakietce przy nazwie. */
-export type Tag = 'Rozgrzewka' | 'Moc' | 'Siła' | 'Akcesoria';
+export type Tag = 'Rozgrzewka' | 'Moc' | 'Siła' | 'Akcesoria' | 'Stabilizacja';
 
 export interface Range {
   min: number;
@@ -19,6 +20,8 @@ export interface ExerciseInfo {
   tag: Tag;
   /** Powtórzenia liczone na nogę — do sum liczą się podwójnie. */
   perLeg?: boolean;
+  /** Powtórzenia na stronę — sumy obejmują obie strony. */
+  perSide?: boolean;
   /** Uwaga wspólna dla A i B. */
   cue?: string;
   /** Jak wpisywać ciężar, jeśli nie jest to oczywiste. */

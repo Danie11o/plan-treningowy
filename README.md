@@ -7,6 +7,15 @@ treningu, rekordy od początku i biblioteka skoków z animacjami.
 Treningi są ustawione na **czwartek i sobotę**, A i B idą na zmianę — jak jeden
 wypadnie, następny i tak będzie tym, którego zabrakło.
 
+**Trening C — extra, opcjonalny:** uruchamiasz go z karty na ekranie Dziś albo
+z zakładki C w Planie, kiedy masz czas. Nie zmienia kolejności A/B ani ich
+terminów. Push press 3×3–5, bench press 2×5–6, wiosłowanie z podparciem klatki
+2×8–10, lat pulldown 2×8–10, face pull 2×12–15, Pallof press 2×10 na stronę.
+Ciężary, historia, rekordy i kopia zapasowa działają tak samo jak przy A/B.
+W Pallof press wpisujesz powtórzenia na jedną stronę; sumy obejmują obie.
+
+Sprawdzenie rotacji A/B, kalendarza i danych treningu C: `npm run check:extra`.
+
 **Aplikacja stoi tutaj: https://danie11o.github.io/plan-treningowy/**
 
 ## Na telefon (Android)

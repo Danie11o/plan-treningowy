@@ -71,7 +71,7 @@ export function ProfileScreen() {
           <Tile
             label="Treningi"
             value={String(life.sessions)}
-            caption={life.sessions ? `A: ${life.a} · B: ${life.b}` : undefined}
+            caption={life.sessions ? `A: ${life.a} · B: ${life.b} · C: ${life.c}` : undefined}
           />
           <Tile
             label="Czas na siłowni"

@@ -173,7 +173,7 @@ function WorkoutHeader({ session, onFinish }: { session: Session; onFinish: () =
           <IconChevronLeft className="size-6" />
         </button>
         <div className="min-w-0 flex-1">
-          <p className="label text-day">Trening {session.day}</p>
+          <p className="label text-day">Trening {session.day}{session.day === 'C' ? ' · extra' : ''}</p>
           <p className="num mt-1 text-[30px] leading-none text-chalk">
             {formatClock(now - session.startedAt)}
           </p>
@@ -470,7 +470,7 @@ function ExerciseCard({
             Ciężar{info.kind === 'jump' ? ' · opcjonalnie' : ''}
           </span>
           <span className="label text-center text-[10px] text-dim">
-            {info.perLeg ? 'Powt./noga' : 'Powt.'}
+            {info.perSide ? 'Powt./str.' : info.perLeg ? 'Powt./noga' : 'Powt.'}
           </span>
           <span />
         </div>

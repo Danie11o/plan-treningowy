@@ -102,7 +102,7 @@ export function mergePlanOverrides(incoming: NonNullable<Settings['planOverrides
   useLog.setState((state) => {
     const current = state.settings.planOverrides ?? {};
     const next = { ...current };
-    for (const day of ['A', 'B'] as const) {
+    for (const day of ['A', 'B', 'C'] as const) {
       const extra = incoming[day];
       if (extra) next[day] = { ...extra, ...(current[day] ?? {}) };
     }

@@ -15,7 +15,7 @@ import {
   formatLongDate,
 } from '../lib/date';
 import { fmtKg, fmtNum, fmtRange, plural } from '../lib/format';
-import type { DayKey, Session } from '../lib/types';
+import type { DayKey, ScheduledDay, Session } from '../lib/types';
 import { Button, DayBadge, SectionTitle } from '../components/ui';
 import { SessionRow } from '../components/SessionRow';
 import { IconCheck, IconChevronRight, IconJump, IconPlay } from '../components/icons';
@@ -64,6 +64,8 @@ export function TodayScreen() {
         </>
       )}
 
+      {!active && <ExtraCard onStart={() => start('C')} />}
+
       <section className="mt-7 px-4" data-day={focusDay}>
         <SectionTitle aside="ostatni ciężar">Trening {focusDay} — plan</SectionTitle>
         <ol className="overflow-hidden rounded-card border border-edge bg-panel">
@@ -85,8 +87,10 @@ export function TodayScreen() {
                     {exercise.kind === 'warmup'
                       ? `${fmtRange(item.reps.min, item.reps.max)} min`
                       : `${fmtRange(item.sets.min, item.sets.max)} × ${fmtRange(item.reps.min, item.reps.max)}`}
-                    {exercise.perLeg && (
-                      <span className="ml-1 font-sans text-[12px] font-normal text-ash">/ noga</span>
+                    {(exercise.perLeg || exercise.perSide) && (
+                      <span className="ml-1 font-sans text-[12px] font-normal text-ash">
+                        / {exercise.perSide ? 'strona' : 'noga'}
+                      </span>
                     )}
                   </span>
                 </span>
@@ -156,7 +160,7 @@ function NextCard({
   onStart,
   onStartOther,
 }: {
-  day: DayKey;
+  day: ScheduledDay;
   label: string;
   lastOfDay: Session | null;
   onStart: () => void;
@@ -215,6 +219,39 @@ function NextCard({
 
 /* ── Trening w toku ────────────────────────────────────────────────────── */
 
+function ExtraCard({ onStart }: { onStart: () => void }) {
+  const plan = usePlan('C');
+  const sets = plan.reduce((sum, item) => sum + item.sets.max, 0);
+  return (
+    <section data-day="C" aria-label="Opcjonalny trening C" className="mt-3 px-4">
+      <div className="relative overflow-hidden rounded-[26px] border border-day/30 bg-panel p-5">
+        <div aria-hidden="true" className="pointer-events-none absolute -top-20 -right-20 size-48 rounded-full bg-day/10 blur-3xl" />
+        <div className="relative flex items-center gap-4">
+          <span aria-hidden="true" className="display text-[72px] text-day">C</span>
+          <div className="min-w-0 flex-1">
+            <p className="label text-day">Extra · opcjonalny</p>
+            <h2 className="display mt-1.5 text-[29px] uppercase">Masz czas na więcej?</h2>
+            <p className="mt-2 text-[13px] text-ash">Siła · moc · stabilizacja</p>
+          </div>
+        </div>
+        <p className="relative mt-3 text-[14px] leading-relaxed text-ash">
+          {plan.length} ćwiczeń · {sets} serii. Wybierasz, kiedy chcesz.
+          {' '}Kolejność A/B zostaje bez zmian.
+        </p>
+        <div className="relative mt-4 grid grid-cols-[1fr_auto] gap-2">
+          <Button variant="day" className="min-h-12" onClick={onStart}>
+            <IconPlay className="size-4" />
+            Zacznij trening C
+          </Button>
+          <Button variant="outline" className="min-h-12" onClick={() => navigate('/plan/c')}>
+            Plan <IconChevronRight className="size-4" />
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function ActiveCard({ session }: { session: Session }) {
   const now = useNow(1000);
   const { done, planned } = setProgress(session);
@@ -231,7 +268,7 @@ function ActiveCard({ session }: { session: Session }) {
         />
         <p className="label relative flex items-center gap-2 text-day">
           <span className="size-2 animate-pulse rounded-full bg-day" />
-          Trening w toku
+          {session.day === 'C' ? 'Extra · trening w toku' : 'Trening w toku'}
         </p>
         <div className="relative mt-3 flex items-end justify-between gap-3">
           <p className="display text-[36px] uppercase">Trening {session.day}</p>
@@ -278,37 +315,8 @@ function DoneTodayCard({ session }: { session: Session }) {
 /* ── Tydzień ───────────────────────────────────────────────────────────── */
 
 function WeekDay({ cell }: { cell: WeekCell }) {
-  const doneDay = cell.done[cell.done.length - 1]?.day ?? null;
+  const doneDays = [...new Set(cell.done.map((session) => session.day))];
   const past = !cell.isToday && cell.date.getTime() < Date.now();
-
-  let marker = <span className="size-7" />;
-  if (doneDay) {
-    marker = (
-      <span data-day={doneDay} className="relative">
-        <DayBadge day={doneDay} size="sm" />
-        <span className="absolute -right-1.5 -bottom-1.5 grid size-4 place-items-center rounded-full bg-go text-[#03220f] ring-2 ring-night">
-          <IconCheck className="size-2.5" strokeWidth={3.5} />
-        </span>
-      </span>
-    );
-  } else if (cell.inProgress) {
-    marker = (
-      <span data-day={cell.inProgress} className="animate-pulse">
-        <DayBadge day={cell.inProgress} size="sm" />
-      </span>
-    );
-  } else if (cell.planned) {
-    marker = (
-      <span
-        data-day={cell.planned}
-        className="display grid size-7 place-items-center rounded-lg border-2 border-day pt-[0.06em] text-[15px] text-day"
-      >
-        {cell.planned}
-      </span>
-    );
-  } else if (cell.training && past) {
-    marker = <span className="size-7 rounded-lg border border-dashed border-edge" title="Bez treningu" />;
-  }
 
   return (
     <div
@@ -322,7 +330,29 @@ function WeekDay({ cell }: { cell: WeekCell }) {
       <span className={`num text-[17px] ${cell.isToday ? 'text-chalk' : 'text-ash'}`}>
         {cell.date.getDate()}
       </span>
-      {marker}
+      <div className="flex min-h-7 flex-col items-center gap-2">
+        {doneDays.map((day) => (
+          <span key={day} data-day={day} className="relative" aria-label={`Trening ${day} zrobiony`}>
+            <DayBadge day={day} size="sm" />
+            <span className="absolute -right-1.5 -bottom-1.5 grid size-4 place-items-center rounded-full bg-go text-[#03220f] ring-2 ring-night">
+              <IconCheck className="size-2.5" strokeWidth={3.5} />
+            </span>
+          </span>
+        ))}
+        {cell.inProgress && (
+          <span data-day={cell.inProgress} className="animate-pulse" aria-label={`Trening ${cell.inProgress} w toku`}>
+            <DayBadge day={cell.inProgress} size="sm" />
+          </span>
+        )}
+        {cell.planned && (
+          <span data-day={cell.planned} aria-label={`Zaplanowany trening ${cell.planned}`} className="display grid size-7 place-items-center rounded-lg border-2 border-day pt-[0.06em] text-[15px] text-day">
+            {cell.planned}
+          </span>
+        )}
+        {!doneDays.length && !cell.inProgress && !cell.planned && cell.training && past && (
+          <span className="size-7 rounded-lg border border-dashed border-edge" title="Bez treningu" />
+        )}
+      </div>
     </div>
   );
 }

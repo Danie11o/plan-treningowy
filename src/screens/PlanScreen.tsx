@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { EXERCISES, PLAN, RULES, WARMUP_TIPS } from '../data/plan';
-import { setPlanOverride, useActive, useLog } from '../store/store';
+import { setPlanOverride, startWorkout, useActive, useLog } from '../store/store';
+import { navigate } from '../lib/router';
 import { nextDay } from '../lib/schedule';
 import { usePlan } from '../lib/plan';
 import { fmtNum, fmtRange, parseNumber, toField } from '../lib/format';
@@ -15,23 +16,47 @@ import {
   TagChip,
   showToast,
 } from '../components/ui';
-import { IconChevronRight, IconJump, IconPencil } from '../components/icons';
+import { IconChevronRight, IconJump, IconPencil, IconPlay } from '../components/icons';
 import { openJumps } from './JumpsScreen';
 
-export function PlanScreen() {
+export function PlanScreen({ initialDay }: { initialDay?: DayKey }) {
   const sessions = useLog((s) => s.sessions);
   const active = useActive((s) => s.active);
-  const [day, setDay] = useState<DayKey>(() => active?.day ?? nextDay(sessions));
+  const [day, setDay] = useState<DayKey>(() => initialDay ?? active?.day ?? nextDay(sessions));
   const [editing, setEditing] = useState<PlanItem | null>(null);
   const plan = usePlan(day);
 
   return (
     <div>
-      <ScreenTitle eyebrow="A i B na zmianę" title="Plan" />
+      <ScreenTitle eyebrow="A/B na zmianę · C, kiedy chcesz" title="Plan" />
 
       <div className="px-4">
         <DaySwitch value={day} onChange={setDay} />
       </div>
+
+      {day === 'C' && (
+        <section data-day="C" className="mx-4 mt-4 rounded-[26px] border border-day/35 bg-day/[0.07] p-5">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="label text-day">Siła · moc · stabilizacja</p>
+              <h2 className="display mt-2 text-[36px] uppercase">Trening C</h2>
+            </div>
+            <span className="rounded-full border border-day/35 bg-day/10 px-3 py-1.5 text-[12px] font-medium text-day">Opcjonalny</span>
+          </div>
+          <p className="mt-3 text-[14px] leading-relaxed text-ash">
+            Dodatkowy trening, gdy masz czas. {plan.length} ćwiczeń ·{' '}
+            {plan.reduce((sum, item) => sum + item.sets.max, 0)} serii.
+            {' '}Nie zmienia kolejności ani dni A/B.
+          </p>
+          <Button variant="day" size="lg" full className="mt-4" onClick={() => {
+            if (!useActive.getState().active) startWorkout('C');
+            navigate('/trening');
+          }}>
+            <IconPlay className="size-5" />
+            {active ? `Wróć do treningu ${active.day}` : 'Zacznij trening C'}
+          </Button>
+        </section>
+      )}
 
       <div data-day={day} className="mt-4 space-y-2.5 px-4">
         {plan.map((item, i) => (
@@ -39,7 +64,7 @@ export function PlanScreen() {
         ))}
       </div>
 
-      <section className="mt-9 px-4">
+      {day !== 'C' && <section className="mt-9 px-4">
         <SectionTitle>Zasady</SectionTitle>
         <ul className="overflow-hidden rounded-card border border-edge bg-panel">
           {RULES.map((rule, i) => (
@@ -49,7 +74,7 @@ export function PlanScreen() {
             </li>
           ))}
         </ul>
-      </section>
+      </section>}
 
       <div data-day={day}>
         <PlanEditSheet day={day} item={editing} onClose={() => setEditing(null)} />
@@ -60,23 +85,24 @@ export function PlanScreen() {
 
 export function DaySwitch({ value, onChange }: { value: DayKey; onChange: (day: DayKey) => void }) {
   return (
-    <div className="grid grid-cols-2 gap-2" role="tablist" aria-label="Trening">
-      {(['A', 'B'] as const).map((d) => {
+    <div className="grid grid-cols-3 gap-2" role="group" aria-label="Wybierz trening">
+      {(['A', 'B', 'C'] as const).map((d) => {
         const on = value === d;
         return (
           <button
             key={d}
             type="button"
-            role="tab"
-            aria-selected={on}
+            aria-pressed={on}
             data-day={d}
             onClick={() => onChange(d)}
-            className={`flex h-14 items-center justify-center gap-2.5 rounded-2xl border transition-colors ${
+            className={`flex min-h-16 items-center justify-center gap-2 rounded-2xl border transition-colors ${
               on ? 'border-day bg-day/15 text-chalk' : 'border-edge bg-panel text-ash active:bg-raised'
             }`}
           >
             <span className={`display pt-[0.08em] text-[30px] ${on ? 'text-day' : ''}`}>{d}</span>
-            <span className="text-[15px] font-medium">Trening {d}</span>
+            <span className="text-left text-[13px] font-medium leading-snug">
+              {d === 'C' ? <>Extra<span className="block text-[10px] font-normal text-ash">opcjonalny</span></> : 'Trening'}
+            </span>
           </button>
         );
       })}
@@ -130,9 +156,9 @@ function PlanCard({ index, item, onEdit }: { index: number; item: PlanItem; onEd
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-1.5">
             <TagChip tag={exercise.tag} />
-            {exercise.perLeg && (
+            {(exercise.perLeg || exercise.perSide) && (
               <span className="label rounded-md bg-raised px-1.5 py-[5px] text-[10px] text-chalk">
-                na nogę
+                {exercise.perSide ? 'na stronę' : 'na nogę'}
               </span>
             )}
             {item.edited && (
@@ -283,7 +309,7 @@ function PlanEditSheet({
                 }}
               />
             </Row>
-            <Row label="Powtórzenia do" hint={info?.perLeg ? 'na nogę' : undefined}>
+            <Row label="Powtórzenia do" hint={info?.perSide ? 'na stronę' : info?.perLeg ? 'na nogę' : undefined}>
               <Stepper value={repsMax} min={repsMin} max={30} label="Powtórzenia do" onChange={setRepsMax} />
             </Row>
             <Row label="Ciężar" hint="opcjonalnie — podpowie się na treningu">

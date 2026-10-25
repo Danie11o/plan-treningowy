@@ -87,6 +87,32 @@ export const EXERCISES: Record<string, ExerciseInfo> = {
     tag: 'Akcesoria',
     trimWhenTired: true,
   },
+  'push-press': {
+    id: 'push-press', name: 'Push press', alias: 'dynamiczne wyciskanie sztangi',
+    kind: 'weighted', tag: 'Moc',
+  },
+  'bench-press': {
+    id: 'bench-press', name: 'Bench press', alias: 'wyciskanie sztangi leżąc',
+    kind: 'weighted', tag: 'Siła',
+  },
+  'wioslowanie': {
+    id: 'wioslowanie', name: 'Wiosłowanie', alias: 'z podparciem klatki piersiowej',
+    kind: 'weighted', tag: 'Siła',
+    weightHint: 'Przy dwóch hantlach wpisuj ich łączny ciężar.',
+  },
+  'lat-pulldown': {
+    id: 'lat-pulldown', name: 'Lat pulldown', alias: 'ściąganie drążka wyciągu',
+    kind: 'weighted', tag: 'Siła',
+  },
+  'face-pull': {
+    id: 'face-pull', name: 'Face pull', alias: 'przyciąganie linki do twarzy',
+    kind: 'weighted', tag: 'Akcesoria',
+  },
+  'pallof-press': {
+    id: 'pallof-press', name: 'Pallof press', alias: 'stabilizacja tułowia, antyrotacja',
+    kind: 'weighted', tag: 'Stabilizacja', perSide: true,
+    weightHint: 'Wpisuj ciężar wyciągu i powtórzenia na jedną stronę. Sumy obejmują obie strony.',
+  },
 };
 
 export const PLAN: Record<DayKey, PlanItem[]> = {
@@ -108,6 +134,14 @@ export const PLAN: Record<DayKey, PlanItem[]> = {
     { exerciseId: 'bulgarian', sets: r(2, 3), reps: r(6), note: 'Na B lżej niż na A.' },
     { exerciseId: 'lydka', sets: r(3), reps: r(8, 12) },
     { exerciseId: 'prostowanie-nog', sets: r(2), reps: r(10, 15) },
+  ],
+  C: [
+    { exerciseId: 'push-press', sets: r(3), reps: r(3, 5) },
+    { exerciseId: 'bench-press', sets: r(2), reps: r(5, 6) },
+    { exerciseId: 'wioslowanie', sets: r(2), reps: r(8, 10) },
+    { exerciseId: 'lat-pulldown', sets: r(2), reps: r(8, 10) },
+    { exerciseId: 'face-pull', sets: r(2), reps: r(12, 15) },
+    { exerciseId: 'pallof-press', sets: r(2), reps: r(10) },
   ],
 };
 
@@ -163,7 +197,7 @@ export const SAME_DAY_HISTORY: Set<string> = (() => {
 /** Wszystkie ćwiczenia z ciężarem w kolejności planu, bez powtórzeń — do listy rekordów. */
 export const TRACKED_EXERCISES: string[] = (() => {
   const ids: string[] = [];
-  for (const item of [...PLAN.A, ...PLAN.B]) {
+  for (const item of [...PLAN.A, ...PLAN.B, ...PLAN.C]) {
     if (EXERCISES[item.exerciseId].kind === 'warmup') continue;
     if (!ids.includes(item.exerciseId)) ids.push(item.exerciseId);
   }

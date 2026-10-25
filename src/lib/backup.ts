@@ -117,7 +117,7 @@ function readExercise(raw: unknown): SessionExercise | null {
 function readSession(raw: unknown): Session | null {
   if (!raw || typeof raw !== 'object') return null;
   const s = raw as Record<string, unknown>;
-  if (typeof s.id !== 'string' || (s.day !== 'A' && s.day !== 'B') || !isNum(s.startedAt)) {
+  if (typeof s.id !== 'string' || (s.day !== 'A' && s.day !== 'B' && s.day !== 'C') || !isNum(s.startedAt)) {
     return null;
   }
   if (!Array.isArray(s.exercises)) return null;
@@ -135,7 +135,7 @@ function readSession(raw: unknown): Session | null {
 function readOverrides(raw: unknown): Overrides | null {
   if (!raw || typeof raw !== 'object') return null;
   const result: Overrides = {};
-  for (const day of ['A', 'B'] as const) {
+  for (const day of ['A', 'B', 'C'] as const) {
     const forDay = (raw as Record<string, unknown>)[day];
     if (!forDay || typeof forDay !== 'object') continue;
     const clean: Record<string, PlanOverride> = {};

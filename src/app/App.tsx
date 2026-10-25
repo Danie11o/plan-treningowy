@@ -14,7 +14,7 @@ import { JumpsScreen, JumpDetailScreen } from '../screens/JumpsScreen';
 
 const TABS: { to: string; label: string; Icon: ComponentType<{ className?: string }>; also: string[] }[] = [
   { to: '/', label: 'Dziś', Icon: IconToday, also: [] },
-  { to: '/plan', label: 'Plan', Icon: IconPlan, also: [] },
+  { to: '/plan', label: 'Plan', Icon: IconPlan, also: ['/plan/'] },
   { to: '/historia', label: 'Historia', Icon: IconHistory, also: ['/historia/'] },
   { to: '/profil', label: 'Profil', Icon: IconUser, also: ['/rekordy/'] },
 ];
@@ -28,6 +28,7 @@ interface Route {
 function resolve(path: string): Route {
   let m: Record<string, string> | null;
   if (path === '/plan') return { element: <PlanScreen />, immersive: false };
+  if (path === '/plan/c') return { element: <PlanScreen key="C" initialDay="C" />, immersive: false };
   if (path === '/historia') return { element: <HistoryScreen />, immersive: false };
   if ((m = matchRoute('/historia/:id', path))) {
     return { element: <SessionScreen key={m.id} id={m.id} />, immersive: false };

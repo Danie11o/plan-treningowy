@@ -25,6 +25,12 @@ export function SessionReport({ session, all }: { session: Session; all: Session
 
   return (
     <div className="space-y-3">
+      {session.day === 'C' && (
+        <p className="rounded-card border border-day/30 bg-day/[0.07] px-4 py-3 text-[14px] leading-relaxed text-ash">
+          <span className="font-semibold text-day">Extra zrobione.</span>{' '}
+          Kolejność A/B zostaje bez zmian.
+        </p>
+      )}
       <div className="grid grid-cols-2 gap-2">
         <StatTile label="Czas treningu" value={formatDuration(duration)} wide />
         <StatTile label="Podniesiony ciężar" value={fmtNum(totals.kg)} unit="kg" wide accent />

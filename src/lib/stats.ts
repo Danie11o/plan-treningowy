@@ -11,9 +11,10 @@ export function counts(set: SetEntry): boolean {
   return set.done && set.reps !== null && set.reps > 0;
 }
 
-/** Bułgary są „na nogę" — każda noga podnosi ten ciężar, więc do sum idzie ×2. */
+/** Ćwiczenia na nogę lub stronę liczą się dla obu stron, czyli ×2. */
 function legs(exerciseId: string): number {
-  return EXERCISES[exerciseId]?.perLeg ? 2 : 1;
+  const info = EXERCISES[exerciseId];
+  return info?.perLeg || info?.perSide ? 2 : 1;
 }
 
 export function setKg(set: SetEntry, exerciseId: string): number {
@@ -175,6 +176,7 @@ export interface Lifetime {
   sessions: number;
   a: number;
   b: number;
+  c: number;
   kg: number;
   reps: number;
   sets: number;
@@ -183,12 +185,13 @@ export interface Lifetime {
 }
 
 export function lifetime(sessions: Session[]): Lifetime {
-  const result: Lifetime = { sessions: 0, a: 0, b: 0, kg: 0, reps: 0, sets: 0, ms: 0, first: null };
+  const result: Lifetime = { sessions: 0, a: 0, b: 0, c: 0, kg: 0, reps: 0, sets: 0, ms: 0, first: null };
   for (const s of sessions) {
     const t = sessionTotals(s);
     result.sessions += 1;
     if (s.day === 'A') result.a += 1;
-    else result.b += 1;
+    else if (s.day === 'B') result.b += 1;
+    else result.c += 1;
     result.kg += t.kg;
     result.reps += t.reps;
     result.sets += t.sets;

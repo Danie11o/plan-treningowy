@@ -27,6 +27,7 @@ jobs:
           cache: npm
       # Lockfile powstał na Windowsie; gdyby npm ci nie znalazł paczek pod Linuksa, doinstaluje je npm install.
       - run: npm ci || npm install --no-audit --no-fund
+      - run: npm run check:extra
       - run: npm run build
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4

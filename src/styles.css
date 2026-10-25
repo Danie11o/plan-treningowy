@@ -5,7 +5,7 @@
 /*
   Plan treningowy — system wizualny.
 
-  Kolor mówi, który to trening: kobalt to zawsze A, pomarańcz piłki to zawsze B.
+  Kolor mówi, który to trening: kobalt to A, pomarańcz piłki to B, turkus to C.
   Złoto pojawia się wyłącznie przy rekordach, zieleń wyłącznie przy „zrobione".
   Dzięki temu jeden rzut oka wystarcza, żeby wiedzieć, co jest grane.
 
@@ -24,6 +24,7 @@
 
   --color-a: #7391ff;
   --color-b: #ff8b3d;
+  --color-c: #62d7ee;
   --color-gold: #f6c453;
   --color-go: #4ad592;
   --color-stop: #ff6161;
@@ -61,6 +62,11 @@
 [data-day='B'] {
   --day: var(--color-b);
   --day-ink: #2a1203;
+}
+
+[data-day='C'] {
+  --day: var(--color-c);
+  --day-ink: #06232a;
 }
 
 @layer base {

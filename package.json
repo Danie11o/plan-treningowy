@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite --host",
     "build": "tsc -b && vite build",
+    "check:extra": "node scripts/check-extra.mjs",
     "preview": "vite preview --host",
     "icons": "node scripts/generate-icons.mjs",
     "jumps": "node scripts/jump-sheet.mjs"
